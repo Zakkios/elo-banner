@@ -1,34 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { PageHero } from './components/layout/PageHero'
+import { PageLayout } from './components/layout/PageLayout'
+import { SummonerSearchSection } from './features/summoner-search'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <PageLayout
+      header={
+        <PageHero
+          title="Elo Banner"
+          subtitle="Donnez vie a votre progression sur League of Legends"
+          description={
+            <p className="text-base text-slate-200/70">
+              Entrez un pseudo et preparez-vous a generer une bannere partageable, adaptee automatiquement a son Elo.
+            </p>
+          }
+        />
+      }
+      footer={<p className="text-sm text-slate-200/70">Concu pour la communaute League of Legends.</p>}
+    >
+      <SummonerSearchSection />
+    </PageLayout>
   )
 }
 
