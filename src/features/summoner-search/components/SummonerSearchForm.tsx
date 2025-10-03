@@ -1,29 +1,64 @@
 import type { FormEventHandler } from 'react'
 import { Button } from '../../../components/ui/Button'
-import { TextField } from '../../../components/ui/TextField'
+import { TextField, type TextFieldProps } from '../../../components/ui/TextField'
 
 export interface SummonerSearchFormProps {
   summonerName: string
+  summonerTagline: string
   onSummonerNameChange: (value: string) => void
+  onSummonerTaglineChange: (value: string) => void
   onSubmit: FormEventHandler<HTMLFormElement>
   isLoading?: boolean
 }
 
-export function SummonerSearchForm({ summonerName, onSummonerNameChange, onSubmit, isLoading }: SummonerSearchFormProps) {
+function NameInput(props: TextFieldProps) {
+  return <TextField {...props} maxLength={16} />
+}
+
+function TaglineInput({ leftAddon, ...props }: TextFieldProps) {
+  return <TextField {...props} maxLength={5} leftAddon={leftAddon ?? '#'} />
+}
+
+export function SummonerSearchForm({
+  summonerName,
+  summonerTagline,
+  onSummonerNameChange,
+  onSummonerTaglineChange,
+  onSubmit,
+  isLoading,
+}: SummonerSearchFormProps) {
+  const isSubmitDisabled =
+    isLoading || summonerName.trim().length === 0 || summonerTagline.trim().length === 0
+
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-      <TextField
-        name="summonerName"
-        label="Pseudo du joueur"
-        placeholder="Ex: Faker"
-        value={summonerName}
-        onChange={(event) => onSummonerNameChange(event.target.value)}
-        autoComplete="off"
-        autoCapitalize="none"
-        spellCheck={false}
-        required
-      />
-      <Button type="submit" disabled={isLoading || summonerName.trim().length === 0}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
+        <NameInput
+          name="summonerName"
+          label="Pseudo"
+          placeholder="Ex: Faker"
+          value={summonerName}
+          onChange={(event) => onSummonerNameChange(event.target.value)}
+          autoComplete="off"
+          autoCapitalize="none"
+          spellCheck={false}
+          required
+          className="sm:flex-[0.68]"
+        />
+        <TaglineInput
+          name="tagline"
+          label="Tag"
+          placeholder="EUW"
+          value={summonerTagline}
+          onChange={(event) => onSummonerTaglineChange(event.target.value)}
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          required
+          className="sm:flex-[0.32]"
+        />
+      </div>
+      <Button type="submit" disabled={isSubmitDisabled}>
         {isLoading ? 'Recherche...' : 'Generer'}
       </Button>
     </form>

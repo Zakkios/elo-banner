@@ -3,16 +3,22 @@ import type { SummonerProfile } from '../types'
 export interface SummonerResultCardProps {
   profile: SummonerProfile | null
   lastQueriedName?: string
+  lastQueriedTagline?: string
   isLoading?: boolean
 }
 
-export function SummonerResultCard({ profile, lastQueriedName, isLoading }: SummonerResultCardProps) {
+function formatRiotId(name?: string, tagLine?: string): string {
+  if (!name) {
+    return ''
+  }
+
+  return tagLine ? `${name} #${tagLine}` : name
+}
+
+export function SummonerResultCard({ profile, lastQueriedName, lastQueriedTagline, isLoading }: SummonerResultCardProps) {
   if (isLoading) {
     return (
-      <section
-        className="flex min-h-[360px] flex-col gap-6 rounded-3xl border border-app-border bg-app-card p-8"
-        aria-live="polite"
-      >
+      <section className="flex min-h-[360px] flex-col gap-6 rounded-3xl border border-app-border bg-app-card p-8" aria-live="polite">
         <div
           className="aspect-[3/1] w-full rounded-2xl bg-[linear-gradient(110deg,rgba(25,34,62,0.8)20%,rgba(42,58,96,0.9)40%,rgba(25,34,62,0.8)60%)] bg-[length:200%_100%] animate-shimmer"
           aria-hidden="true"
@@ -23,21 +29,23 @@ export function SummonerResultCard({ profile, lastQueriedName, isLoading }: Summ
   }
 
   if (!profile) {
+    const queriedLabel = formatRiotId(lastQueriedName, lastQueriedTagline)
+
     return (
       <section
         className="flex min-h-[360px] flex-col justify-center gap-6 rounded-3xl border border-app-border bg-app-card p-8 text-center text-slate-200/70"
         aria-live="polite"
       >
         <div className="flex flex-col items-center gap-3">
-          <h2 className="text-2xl font-semibold text-white">{lastQueriedName ? 'Aucun resultat' : 'Pret a generer votre banniere'}</h2>
+          <h2 className="text-2xl font-semibold text-white">{queriedLabel ? 'Aucun resultat' : 'Pret a generer votre banniere'}</h2>
           <p className="max-w-md text-sm text-slate-200/70">
-            {lastQueriedName
-              ? `Nous n'avons pas encore trouve d'information pour "${lastQueriedName}".`
+            {queriedLabel
+              ? `Nous n'avons pas encore trouve d'information pour "${queriedLabel}".`
               : 'Recherchez un pseudo League of Legends pour voir la banniere qui correspond a son Elo.'}
           </p>
-          {lastQueriedName ? (
+          {queriedLabel ? (
             <p className="max-w-md text-sm text-slate-300/70">
-              Verifiez l'orthographe du pseudo ou essayez un autre joueur.
+              Verifiez l'orthographe du pseudo et du tag, ou essayez un autre joueur.
             </p>
           ) : null}
         </div>
@@ -45,15 +53,14 @@ export function SummonerResultCard({ profile, lastQueriedName, isLoading }: Summ
     )
   }
 
+  const displayName = formatRiotId(profile.name, profile.tagLine)
+
   return (
-    <section
-      className="flex min-h-[360px] flex-col gap-6 rounded-3xl border border-app-border bg-app-card p-8"
-      aria-live="polite"
-    >
+    <section className="flex min-h-[360px] flex-col gap-6 rounded-3xl border border-app-border bg-app-card p-8" aria-live="polite">
       <div
         className="aspect-[3/1] w-full overflow-hidden rounded-2xl bg-banner-fallback text-xs font-semibold uppercase tracking-wideish text-slate-100/80"
         role="img"
-        aria-label={`Banniere de ${profile.name}`}
+        aria-label={`Banniere de ${displayName}`}
       >
         {profile.bannerUrl ? (
           <img src={profile.bannerUrl} alt="" className="h-full w-full object-cover" />
@@ -73,7 +80,7 @@ export function SummonerResultCard({ profile, lastQueriedName, isLoading }: Summ
             )}
           </div>
           <div>
-            <h2 className="m-0 text-2xl font-semibold text-white">{profile.name}</h2>
+            <h2 className="m-0 text-2xl font-semibold text-white">{displayName}</h2>
             <p className="mt-1 text-sm text-slate-200/70">
               {profile.tier} {profile.rank}
             </p>
