@@ -1,4 +1,4 @@
-import type { FormEventHandler } from 'react'
+import type { ClipboardEvent, FormEventHandler } from 'react'
 import { Button } from '../../../components/ui/Button'
 import { TextField, type TextFieldProps } from '../../../components/ui/TextField'
 
@@ -30,6 +30,33 @@ export function SummonerSearchForm({
   const isSubmitDisabled =
     isLoading || summonerName.trim().length === 0 || summonerTagline.trim().length === 0
 
+  function handleSummonerNamePaste(event: ClipboardEvent<HTMLInputElement>) {
+    const pastedValue = event.clipboardData.getData('text')
+
+    if (!pastedValue.includes('#')) {
+      return
+    }
+
+    const trimmedValue = pastedValue.trim()
+    const hashIndex = trimmedValue.indexOf('#')
+
+    if (hashIndex <= 0 || hashIndex === trimmedValue.length - 1) {
+      return
+    }
+
+    const namePart = trimmedValue.slice(0, hashIndex).trim()
+    const taglinePart = trimmedValue.slice(hashIndex + 1).trim()
+
+    if (!namePart || !taglinePart) {
+      return
+    }
+
+    event.preventDefault()
+
+    onSummonerNameChange(namePart)
+    onSummonerTaglineChange(taglinePart)
+  }
+
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
@@ -39,6 +66,7 @@ export function SummonerSearchForm({
           placeholder="Ex: Faker"
           value={summonerName}
           onChange={(event) => onSummonerNameChange(event.target.value)}
+          onPaste={handleSummonerNamePaste}
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
