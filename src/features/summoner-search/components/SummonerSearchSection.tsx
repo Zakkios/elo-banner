@@ -4,6 +4,7 @@ import { SummonerResultCard } from "./SummonerResultCard";
 import type { SummonerProfile, SummonerSearchErrorCode } from "../types";
 import { fetchSummonerPreview } from "../services/riotApi";
 import { useChampionBackgroundOptions } from "../hooks/useChampionBackgroundOptions";
+import { useChampionSkinOptions } from "../hooks/useChampionSkinOptions";
 
 interface SummonerState {
   profile: SummonerProfile | null;
@@ -42,6 +43,7 @@ export function SummonerSearchSection() {
   const [summonerName, setSummonerName] = useState("");
   const [summonerTagline, setSummonerTagline] = useState("");
   const [selectedBackground, setSelectedBackground] = useState("");
+  const [selectedSkin, setSelectedSkin] = useState("0");
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [state, setState] = useState<SummonerState>({ profile: null });
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +54,12 @@ export function SummonerSearchSection() {
     isLoading: isBackgroundLoading,
     error: backgroundError,
   } = useChampionBackgroundOptions();
+
+  const {
+    options: skinOptions,
+    isLoading: isSkinLoading,
+    error: skinError,
+  } = useChampionSkinOptions(selectedBackground);
 
   useEffect(() => {
     if (backgroundOptions.length === 0) {
@@ -76,6 +84,24 @@ export function SummonerSearchSection() {
       null,
     [backgroundOptions, selectedBackground]
   );
+
+  const activeSkin = useMemo(
+    () =>
+      skinOptions.find((option) => option.value === selectedSkin) ?? null,
+    [skinOptions, selectedSkin]
+  );
+
+  const previewImageUrl = useMemo(() => {
+    if (!hasSubmitted) {
+      return undefined;
+    }
+    // Si un skin est sélectionné et différent du default, utiliser le skin
+    if (activeSkin && selectedSkin !== "0") {
+      return activeSkin.imageUrl;
+    }
+    // Sinon utiliser le splash art du champion (skin 0)
+    return activeBackground?.imageUrl;
+  }, [hasSubmitted, activeSkin, selectedSkin, activeBackground]);
 
   const errorMessage = useMemo(() => {
     if (!state.error) {
@@ -103,12 +129,29 @@ export function SummonerSearchSection() {
 
   function handleBackgroundChange(value: string) {
     setSelectedBackground(value);
+    setSelectedSkin("0"); // Reset au skin par défaut
     setBackgroundOffset(0);
+  }
+
+  function handleSkinChange(value: string) {
+    setSelectedSkin(value);
+    setBackgroundOffset(0); // Reset l'offset quand on change de skin
   }
 
   function handleBackgroundOffsetChange(offset: number) {
     setBackgroundOffset(offset);
   }
+
+  // Réinitialiser le skin quand les options de skins changent
+  useEffect(() => {
+    if (skinOptions.length > 0) {
+      // Vérifier si le skin sélectionné existe toujours
+      const skinExists = skinOptions.some((option) => option.value === selectedSkin);
+      if (!skinExists) {
+        setSelectedSkin("0");
+      }
+    }
+  }, [skinOptions, selectedSkin]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -170,9 +213,7 @@ export function SummonerSearchSection() {
         lastQueriedName={state.lastQueriedName}
         lastQueriedTagline={state.lastQueriedTagline}
         isLoading={isLoading}
-        previewBackgroundUrl={
-          hasSubmitted ? activeBackground?.imageUrl : undefined
-        }
+        previewBackgroundUrl={previewImageUrl}
         hasSubmitted={hasSubmitted}
         backgroundOffset={backgroundOffset}
         onBackgroundOffsetChange={handleBackgroundOffsetChange}
@@ -190,17 +231,26 @@ export function SummonerSearchSection() {
           summonerTagline={summonerTagline}
           selectedBackground={selectedBackground}
           backgroundOptions={backgroundOptions}
+          selectedSkin={selectedSkin}
+          skinOptions={skinOptions}
           onSummonerNameChange={handleSummonerNameChange}
           onSummonerTaglineChange={handleSummonerTaglineChange}
           onBackgroundChange={handleBackgroundChange}
+          onSkinChange={handleSkinChange}
           onSubmit={handleSubmit}
           isLoading={isLoading}
           isBackgroundLoading={isBackgroundLoading}
+          isSkinLoading={isSkinLoading}
         />
         {backgroundError ? (
           <p className="text-sm text-amber-200/80">
             Impossible de charger la liste complete des champions pour le
             moment. Reessayez un peu plus tard.
+          </p>
+        ) : null}
+        {skinError ? (
+          <p className="text-sm text-amber-200/80">
+            Impossible de charger les skins du champion. Reessayez un peu plus tard.
           </p>
         ) : null}
         {errorMessage ? (

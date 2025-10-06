@@ -34,7 +34,7 @@ interface ChampionListResponse {
 }
 
 async function fetchChampionSummaries(version: string): Promise<ChampionSummary[]> {
-  const url = 'https://ddragon.leagueoflegends.com/cdn/' + version + '/data/en_US/champion.json'
+  const url = 'https://ddragon.leagueoflegends.com/cdn/' + version + '/data/fr_FR/champion.json'
   const response = await fetch(url)
 
   if (!response.ok) {

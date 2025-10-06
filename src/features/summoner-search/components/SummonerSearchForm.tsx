@@ -5,6 +5,7 @@ import {
   type TextFieldProps,
 } from "../../../components/ui/TextField";
 import type { ChampionBackgroundOption } from "../services/championBackgrounds";
+import type { ChampionSkinOption } from "../services/championSkins";
 
 interface BackgroundSelectProps {
   label: string;
@@ -20,12 +21,16 @@ export interface SummonerSearchFormProps {
   summonerTagline: string;
   selectedBackground: string;
   backgroundOptions: ChampionBackgroundOption[];
+  selectedSkin: string;
+  skinOptions: ChampionSkinOption[];
   onSummonerNameChange: (value: string) => void;
   onSummonerTaglineChange: (value: string) => void;
   onBackgroundChange: (value: string) => void;
+  onSkinChange: (value: string) => void;
   onSubmit: FormEventHandler<HTMLFormElement>;
   isLoading?: boolean;
   isBackgroundLoading?: boolean;
+  isSkinLoading?: boolean;
 }
 
 function NameInput(props: TextFieldProps) {
@@ -83,12 +88,16 @@ export function SummonerSearchForm({
   summonerTagline,
   selectedBackground,
   backgroundOptions,
+  selectedSkin,
+  skinOptions,
   onSummonerNameChange,
   onSummonerTaglineChange,
   onBackgroundChange,
+  onSkinChange,
   onSubmit,
   isLoading,
   isBackgroundLoading,
+  isSkinLoading,
 }: SummonerSearchFormProps) {
   const isSubmitDisabled =
     isLoading ||
@@ -159,6 +168,16 @@ export function SummonerSearchForm({
         onChange={onBackgroundChange}
         isLoading={isBackgroundLoading}
       />
+      {selectedBackground && skinOptions.length > 0 && (
+        <BackgroundSelect
+          label="Skin"
+          name="skin"
+          options={skinOptions}
+          value={selectedSkin}
+          onChange={onSkinChange}
+          isLoading={isSkinLoading}
+        />
+      )}
       <Button type="submit" disabled={isSubmitDisabled}>
         {isLoading ? "Recherche..." : "Generer"}
       </Button>
