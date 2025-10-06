@@ -6,6 +6,11 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import type { SummonerProfile } from "../types";
+import {
+  getRankStyle,
+  calculateWinRate,
+  getTotalGames,
+} from "../utils/rankUtils";
 
 export interface SummonerResultCardProps {
   profile: SummonerProfile | null;
@@ -234,11 +239,9 @@ export function SummonerResultCard({
   const displayName = formatRiotId(profile.name, profile.tagLine);
   const avatarUrl = profile.profileIconUrl;
   const avatarFallback = profile.name.charAt(0).toUpperCase();
-  const statItems: Array<{ label: string; value: string }> = [
-    { label: "LP", value: String(profile.leaguePoints) },
-    { label: "Victoires", value: String(profile.wins) },
-    { label: "Defaites", value: String(profile.losses) },
-  ];
+  const rankStyle = getRankStyle(profile.tier);
+  const winRate = calculateWinRate(profile.wins, profile.losses);
+  const totalGames = getTotalGames(profile.wins, profile.losses);
 
   return (
     <section
@@ -283,11 +286,30 @@ export function SummonerResultCard({
             <span>Previsualisation de la banniere</span>
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/55 to-slate-950/70" />
-        <div className="relative flex h-full w-full flex-col justify-between p-5 sm:p-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
-            <div className="flex items-center gap-4 sm:gap-5">
-              <div className="flex h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border-4 border-white/20 bg-slate-900/90 text-2xl font-semibold shadow-[0_12px_30px_-12px_rgba(0,0,0,0.8)]">
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-950/85" />
+        <div className="relative flex h-full w-full items-center justify-between gap-4 px-6 py-5 sm:px-8 sm:py-6">
+          {/* Section gauche : Avatar + Rank Badge + Info */}
+          <div className="flex items-center gap-4 sm:gap-5">
+            {/* Rank Badge */}
+            {/* {rankStyle.badgeIcon && (
+              <div className="relative hidden sm:block">
+                <img
+                  src={rankStyle.badgeIcon}
+                  alt={`${profile.tier} badge`}
+                  className="h-20 w-20 opacity-90 drop-shadow-[0_0_12px_rgba(0,0,0,0.8)]"
+                />
+              </div>
+            )} */}
+            {/* Avatar avec bordure colorée selon le rank */}
+            <div className="relative">
+              <div
+                className="absolute inset-0 rounded-full opacity-60 blur-md"
+                style={{ backgroundColor: rankStyle.glowColor }}
+              />
+              <div
+                className="relative flex h-[90px] w-[90px] items-center justify-center overflow-hidden rounded-full border-[3px] bg-slate-900/95 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.9)]"
+                style={{ borderColor: rankStyle.borderColor }}
+              >
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
@@ -295,35 +317,77 @@ export function SummonerResultCard({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="text-3xl text-slate-200/85">
+                  <span className="text-3xl font-bold text-slate-200">
                     {avatarFallback}
                   </span>
                 )}
               </div>
-              <div>
-                <p className="text-xl font-semibold text-white">
-                  {displayName}
-                </p>
-                <p className="text-sm font-medium text-amber-200/90">
+            </div>
+
+            {/* Info joueur */}
+            <div className="flex flex-col gap-1">
+              <h3 className="text-xl font-bold text-white sm:text-2xl">
+                {displayName}
+              </h3>
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-sm font-semibold uppercase tracking-wide sm:text-base"
+                  style={{ color: rankStyle.borderColor }}
+                >
                   {profile.tier} {profile.rank}
-                </p>
+                </span>
+                <span className="text-sm text-slate-300/70">•</span>
+                <span className="text-sm font-medium text-slate-300/90">
+                  {profile.leaguePoints} LP
+                </span>
+              </div>
+              <div className="text-xs text-slate-400/80">
+                {totalGames} parties jouées
               </div>
             </div>
           </div>
-          <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-            {statItems.map((stat) => (
-              <dl
-                key={stat.label}
-                className="rounded-xl border border-white/15 bg-slate-950/50 px-4 py-3 text-center backdrop-blur-[2px]"
-              >
-                <dt className="text-[11px] uppercase tracking-[0.24em] text-slate-200/70">
-                  {stat.label}
-                </dt>
-                <dd className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
-                  {stat.value}
-                </dd>
-              </dl>
-            ))}
+
+          {/* Section droite : Stats */}
+          <div className="flex flex-col gap-3">
+            {/* Winrate avec barre de progression */}
+            <div className="flex flex-col gap-1.5 rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 backdrop-blur-sm min-w-[140px]">
+              <div className="flex flex-col items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wider text-slate-300/70">
+                  Winrate
+                </span>
+                <span className="text-lg font-bold text-white">{winRate}%</span>
+              </div>
+              {/* Barre de progression */}
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-700/50">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${winRate}%`,
+                    backgroundColor: rankStyle.borderColor,
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Victoires / Défaites */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col items-center rounded-lg border border-emerald-500/20 bg-emerald-950/30 px-3 py-2 backdrop-blur-sm">
+                <span className="text-xs font-medium uppercase tracking-wider text-emerald-300/70">
+                  V
+                </span>
+                <span className="text-xl font-bold text-emerald-400">
+                  {profile.wins}
+                </span>
+              </div>
+              <div className="flex flex-col items-center rounded-lg border border-rose-500/20 bg-rose-950/30 px-3 py-2 backdrop-blur-sm">
+                <span className="text-xs font-medium uppercase tracking-wider text-rose-300/70">
+                  D
+                </span>
+                <span className="text-xl font-bold text-rose-400">
+                  {profile.losses}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

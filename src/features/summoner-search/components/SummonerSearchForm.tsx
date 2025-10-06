@@ -160,24 +160,31 @@ export function SummonerSearchForm({
           className="sm:flex-[0.32]"
         />
       </div>
-      <BackgroundSelect
-        label="Arriere-plan"
-        name="background"
-        options={backgroundOptions}
-        value={selectedBackground}
-        onChange={onBackgroundChange}
-        isLoading={isBackgroundLoading}
-      />
-      {selectedBackground && skinOptions.length > 0 && (
-        <BackgroundSelect
-          label="Skin"
-          name="skin"
-          options={skinOptions}
-          value={selectedSkin}
-          onChange={onSkinChange}
-          isLoading={isSkinLoading}
-        />
-      )}
+      <div className="flex gap-3">
+        <div className="w-full">
+          <BackgroundSelect
+            label="Champion"
+            name="background"
+            options={backgroundOptions}
+            value={selectedBackground}
+            onChange={onBackgroundChange}
+            isLoading={isBackgroundLoading}
+          />
+        </div>
+
+        {selectedBackground && skinOptions.length > 0 && (
+          <div className="w-full">
+            <BackgroundSelect
+              label="Skin"
+              name="skin"
+              options={skinOptions}
+              value={selectedSkin}
+              onChange={onSkinChange}
+              isLoading={isSkinLoading}
+            />
+          </div>
+        )}
+      </div>
       <Button type="submit" disabled={isSubmitDisabled}>
         {isLoading ? "Recherche..." : "Generer"}
       </Button>
