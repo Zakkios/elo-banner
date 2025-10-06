@@ -11,6 +11,10 @@ import {
   calculateWinRate,
   getTotalGames,
 } from "../utils/rankUtils";
+import {
+  downloadBannerAsImage,
+  generateBannerFilename,
+} from "../utils/downloadBanner";
 
 export interface SummonerResultCardProps {
   profile: SummonerProfile | null;
@@ -44,12 +48,14 @@ export function SummonerResultCard({
   // Tous les hooks doivent être au début du composant
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const bannerRef = useRef<HTMLDivElement>(null);
   const dragStateRef = useRef<{
     pointerId: number;
     startY: number;
     startOffset: number;
   } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const backgroundImageUrl = profile?.bannerUrl ?? previewBackgroundUrl;
   const canAdjustBackground = Boolean(
@@ -179,6 +185,24 @@ export function SummonerResultCard({
     }
   }, []);
 
+  const handleDownload = useCallback(async () => {
+    if (!bannerRef.current || !profile) {
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      const filename = generateBannerFilename(profile.name, profile.tagLine);
+      await downloadBannerAsImage(bannerRef.current, { filename });
+    } catch (error) {
+      console.error("Erreur lors du téléchargement:", error);
+      alert("Impossible de télécharger la bannière. Veuillez réessayer.");
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [profile]);
+
   // Early returns après tous les hooks
   if (isLoading) {
     return (
@@ -249,20 +273,24 @@ export function SummonerResultCard({
       aria-live="polite"
     >
       <div
-        ref={containerRef}
+        ref={bannerRef}
         className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl bg-banner-fallback text-xs font-semibold uppercase tracking-wideish text-slate-100/80"
         role="img"
         aria-label={`Banniere de ${displayName}`}
-        onPointerDown={canAdjustBackground ? handlePointerDown : undefined}
-        onPointerMove={canAdjustBackground ? handlePointerMove : undefined}
-        onPointerUp={canAdjustBackground ? endDrag : undefined}
-        onPointerCancel={canAdjustBackground ? endDrag : undefined}
-        style={
-          canAdjustBackground
-            ? { cursor: isDragging ? "grabbing" : "grab" }
-            : undefined
-        }
       >
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+          onPointerDown={canAdjustBackground ? handlePointerDown : undefined}
+          onPointerMove={canAdjustBackground ? handlePointerMove : undefined}
+          onPointerUp={canAdjustBackground ? endDrag : undefined}
+          onPointerCancel={canAdjustBackground ? endDrag : undefined}
+          style={
+            canAdjustBackground
+              ? { cursor: isDragging ? "grabbing" : "grab" }
+              : undefined
+          }
+        >
         {backgroundImageUrl ? (
           <img
             ref={imageRef}
@@ -390,7 +418,31 @@ export function SummonerResultCard({
             </div>
           </div>
         </div>
+        </div>
       </div>
+      {/* Bouton de téléchargement */}
+      <button
+        onClick={handleDownload}
+        disabled={isDownloading}
+        className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-gradient-to-br from-slate-800/80 to-slate-900/80 px-4 py-3 font-semibold text-white transition-all hover:from-slate-700/80 hover:to-slate-800/80 hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label="Télécharger la bannière"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={2}
+          stroke="currentColor"
+          className="h-5 w-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+          />
+        </svg>
+        <span>{isDownloading ? "Téléchargement..." : "Télécharger la bannière"}</span>
+      </button>
     </section>
   );
 }
