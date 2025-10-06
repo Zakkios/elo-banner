@@ -1,3 +1,10 @@
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { SummonerProfile } from "../types";
 
 export interface SummonerResultCardProps {
@@ -7,6 +14,8 @@ export interface SummonerResultCardProps {
   isLoading?: boolean;
   previewBackgroundUrl?: string;
   hasSubmitted?: boolean;
+  backgroundOffset?: number;
+  onBackgroundOffsetChange?: (offset: number) => void;
 }
 
 function formatRiotId(name?: string, tagLine?: string): string {
@@ -24,7 +33,148 @@ export function SummonerResultCard({
   isLoading,
   previewBackgroundUrl,
   hasSubmitted,
+  backgroundOffset = 0,
+  onBackgroundOffsetChange,
 }: SummonerResultCardProps) {
+  // Tous les hooks doivent être au début du composant
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const dragStateRef = useRef<{
+    pointerId: number;
+    startY: number;
+    startOffset: number;
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const backgroundImageUrl = profile?.bannerUrl ?? previewBackgroundUrl;
+  const canAdjustBackground = Boolean(
+    onBackgroundOffsetChange && backgroundImageUrl
+  );
+
+  const clampOffset = useCallback((offset: number) => {
+    const container = containerRef.current;
+    const image = imageRef.current;
+    if (!container || !image) {
+      return offset;
+    }
+
+    const containerHeight = container.getBoundingClientRect().height;
+    const imageHeight = image.getBoundingClientRect().height;
+
+    // Si l'image n'est pas encore chargée ou est plus petite que le conteneur
+    if (!imageHeight || imageHeight <= containerHeight) {
+      return 0;
+    }
+
+    // La limite est la moitié de la différence entre la hauteur de l'image et du conteneur
+    const limit = (imageHeight - containerHeight) / 2;
+    return Math.max(-limit, Math.min(limit, offset));
+  }, []);
+
+  useEffect(() => {
+    if (!canAdjustBackground || !onBackgroundOffsetChange) {
+      return;
+    }
+
+    const clamped = clampOffset(backgroundOffset);
+    if (clamped !== backgroundOffset) {
+      onBackgroundOffsetChange(clamped);
+    }
+  }, [
+    backgroundOffset,
+    canAdjustBackground,
+    clampOffset,
+    onBackgroundOffsetChange,
+  ]);
+
+  useEffect(() => {
+    if (
+      !canAdjustBackground ||
+      !onBackgroundOffsetChange ||
+      typeof ResizeObserver === "undefined"
+    ) {
+      return;
+    }
+
+    const image = imageRef.current;
+    const container = containerRef.current;
+
+    if (!image || !container) {
+      return;
+    }
+
+    const observer = new ResizeObserver(() => {
+      const clamped = clampOffset(backgroundOffset);
+      if (clamped !== backgroundOffset) {
+        onBackgroundOffsetChange(clamped);
+      }
+    });
+
+    observer.observe(image);
+    observer.observe(container);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [
+    backgroundOffset,
+    canAdjustBackground,
+    clampOffset,
+    onBackgroundOffsetChange,
+  ]);
+
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!canAdjustBackground || event.button !== 0) {
+        return;
+      }
+
+      event.preventDefault();
+      dragStateRef.current = {
+        pointerId: event.pointerId,
+        startY: event.clientY,
+        startOffset: backgroundOffset,
+      };
+      setIsDragging(true);
+      event.currentTarget.setPointerCapture(event.pointerId);
+    },
+    [backgroundOffset, canAdjustBackground]
+  );
+
+  const handlePointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const dragState = dragStateRef.current;
+      if (
+        !dragState ||
+        !canAdjustBackground ||
+        !onBackgroundOffsetChange ||
+        dragState.pointerId !== event.pointerId
+      ) {
+        return;
+      }
+
+      const deltaY = event.clientY - dragState.startY;
+      const nextOffset = clampOffset(dragState.startOffset + deltaY);
+      onBackgroundOffsetChange(nextOffset);
+    },
+    [canAdjustBackground, clampOffset, onBackgroundOffsetChange]
+  );
+
+  const endDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = dragStateRef.current;
+    if (!dragState || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    dragStateRef.current = null;
+    setIsDragging(false);
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  }, []);
+
+  // Early returns après tous les hooks
   if (isLoading) {
     return (
       <section
@@ -84,7 +234,6 @@ export function SummonerResultCard({
   const displayName = formatRiotId(profile.name, profile.tagLine);
   const avatarUrl = profile.profileIconUrl;
   const avatarFallback = profile.name.charAt(0).toUpperCase();
-  const backgroundImageUrl = profile.bannerUrl ?? previewBackgroundUrl;
   const statItems: Array<{ label: string; value: string }> = [
     { label: "LP", value: String(profile.leaguePoints) },
     { label: "Victoires", value: String(profile.wins) },
@@ -96,12 +245,38 @@ export function SummonerResultCard({
       className="flex min-h-[360px] flex-col gap-4 rounded-3xl border border-app-border bg-app-card p-6 sm:p-8"
       aria-live="polite"
     >
-      <div className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl bg-banner-fallback text-xs font-semibold uppercase tracking-wideish text-slate-100/80">
+      <div
+        ref={containerRef}
+        className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl bg-banner-fallback text-xs font-semibold uppercase tracking-wideish text-slate-100/80"
+        role="img"
+        aria-label={`Banniere de ${displayName}`}
+        onPointerDown={canAdjustBackground ? handlePointerDown : undefined}
+        onPointerMove={canAdjustBackground ? handlePointerMove : undefined}
+        onPointerUp={canAdjustBackground ? endDrag : undefined}
+        onPointerCancel={canAdjustBackground ? endDrag : undefined}
+        style={
+          canAdjustBackground
+            ? { cursor: isDragging ? "grabbing" : "grab" }
+            : undefined
+        }
+      >
         {backgroundImageUrl ? (
           <img
+            ref={imageRef}
             src={backgroundImageUrl}
             alt=""
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute w-full object-cover"
+            style={
+              canAdjustBackground
+                ? {
+                    height: "auto",
+                    minHeight: "100%",
+                    top: "50%",
+                    transform: `translateY(calc(-50% + ${backgroundOffset}px))`,
+                  }
+                : { height: "100%", objectFit: "cover" }
+            }
+            draggable={false}
           />
         ) : (
           <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-banner-placeholder">
@@ -109,11 +284,7 @@ export function SummonerResultCard({
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/55 to-slate-950/70" />
-        <div
-          className="relative flex h-full w-full flex-col justify-between p-5 sm:p-8"
-          role="img"
-          aria-label={`Banniere de ${displayName}`}
-        >
+        <div className="relative flex h-full w-full flex-col justify-between p-5 sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
             <div className="flex items-center gap-4 sm:gap-5">
               <div className="flex h-[86px] w-[86px] items-center justify-center overflow-hidden rounded-full border-4 border-white/20 bg-slate-900/90 text-2xl font-semibold shadow-[0_12px_30px_-12px_rgba(0,0,0,0.8)]">

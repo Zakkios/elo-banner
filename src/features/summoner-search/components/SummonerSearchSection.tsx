@@ -45,6 +45,7 @@ export function SummonerSearchSection() {
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [state, setState] = useState<SummonerState>({ profile: null });
   const [isLoading, setIsLoading] = useState(false);
+  const [backgroundOffset, setBackgroundOffset] = useState(0);
 
   const {
     options: backgroundOptions,
@@ -102,6 +103,11 @@ export function SummonerSearchSection() {
 
   function handleBackgroundChange(value: string) {
     setSelectedBackground(value);
+    setBackgroundOffset(0);
+  }
+
+  function handleBackgroundOffsetChange(offset: number) {
+    setBackgroundOffset(offset);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -168,6 +174,8 @@ export function SummonerSearchSection() {
           hasSubmitted ? activeBackground?.imageUrl : undefined
         }
         hasSubmitted={hasSubmitted}
+        backgroundOffset={backgroundOffset}
+        onBackgroundOffsetChange={handleBackgroundOffsetChange}
       />
       <div className="flex flex-col gap-5 rounded-3xl border border-app-border bg-app-panel p-8">
         <h2 className="text-2xl font-semibold text-white">
