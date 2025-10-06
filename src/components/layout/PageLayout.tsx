@@ -1,13 +1,13 @@
-import type { PropsWithChildren, ReactNode } from 'react'
+import type { PropsWithChildren, ReactNode } from "react";
 
 export type PageLayoutProps = PropsWithChildren<{
-  header: ReactNode
-  footer?: ReactNode
-}>
+  header: ReactNode;
+  footer?: ReactNode;
+}>;
 
 export function PageLayout({ header, children, footer }: PageLayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-12 px-6 pb-8 pt-12 sm:px-8 lg:gap-14 lg:pb-12 lg:pt-14">
+    <div className="flex min-h-screen flex-col items-center gap-12 px-6 pb-8 sm:px-8 lg:gap-14 lg:pb-12">
       <header className="w-full max-w-[960px]">{header}</header>
       <main className="flex w-full max-w-[960px] flex-1 flex-col" role="main">
         {children}
@@ -18,5 +18,5 @@ export function PageLayout({ header, children, footer }: PageLayoutProps) {
         </footer>
       ) : null}
     </div>
-  )
+  );
 }
