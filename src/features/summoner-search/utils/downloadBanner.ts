@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas'
+import * as htmlToImage from 'html-to-image'
 
 export interface DownloadBannerOptions {
   filename?: string
@@ -22,44 +22,31 @@ export async function downloadBannerAsImage(
   } = options
 
   try {
-    // Capturer l'élément avec html2canvas
-    const canvas = await html2canvas(element, {
-      backgroundColor: null, // Transparent
-      scale: 2, // 2x pour une meilleure qualité
-      useCORS: true, // Permet de charger les images cross-origin
-      logging: false, // Désactiver les logs
-      allowTaint: true, // Permet les images de différentes origines
-      imageTimeout: 15000, // Timeout pour le chargement des images
-    })
+    // Options pour html-to-image
+    const scale = 2 // 2x pour une meilleure qualité
+    const imageOptions = {
+      quality: quality,
+      pixelRatio: scale,
+      cacheBust: true, // Évite les problèmes de cache
+    }
 
-    // Convertir le canvas en blob
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            reject(new Error('Impossible de créer l\'image'))
-            return
-          }
+    // Capturer l'élément avec html-to-image
+    let dataUrl: string
+    if (format === 'jpg') {
+      dataUrl = await htmlToImage.toJpeg(element, imageOptions)
+    } else {
+      dataUrl = await htmlToImage.toPng(element, imageOptions)
+    }
 
-          // Créer un lien de téléchargement
-          const url = URL.createObjectURL(blob)
-          const link = document.createElement('a')
-          link.href = url
-          link.download = filename
+    // Créer un lien de téléchargement
+    const link = document.createElement('a')
+    link.href = dataUrl
+    link.download = filename
 
-          // Déclencher le téléchargement
-          document.body.appendChild(link)
-          link.click()
-          document.body.removeChild(link)
-
-          // Nettoyer
-          URL.revokeObjectURL(url)
-          resolve()
-        },
-        format === 'jpg' ? 'image/jpeg' : 'image/png',
-        quality
-      )
-    })
+    // Déclencher le téléchargement
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   } catch (error) {
     console.error('Erreur lors de la capture de la bannière:', error)
     throw new Error('Impossible de télécharger la bannière')
