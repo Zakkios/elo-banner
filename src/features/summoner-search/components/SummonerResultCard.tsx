@@ -291,133 +291,128 @@ export function SummonerResultCard({
               : undefined
           }
         >
-        {backgroundImageUrl ? (
-          <img
-            ref={imageRef}
-            src={backgroundImageUrl}
-            alt=""
-            className="absolute w-full object-cover"
-            style={
-              canAdjustBackground
-                ? {
-                    height: "auto",
-                    minHeight: "100%",
-                    top: "50%",
-                    transform: `translateY(calc(-50% + ${backgroundOffset}px))`,
-                  }
-                : { height: "100%", objectFit: "cover" }
-            }
-            draggable={false}
-          />
-        ) : (
-          <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-banner-placeholder">
-            <span>Previsualisation de la banniere</span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-950/85" />
-        <div className="relative flex h-full w-full items-center justify-between gap-4 px-6 py-5 sm:px-8 sm:py-6">
-          {/* Section gauche : Avatar + Rank Badge + Info */}
-          <div className="flex items-center gap-4 sm:gap-5">
-            {/* Rank Badge */}
-            {/* {rankStyle.badgeIcon && (
-              <div className="relative hidden sm:block">
-                <img
-                  src={rankStyle.badgeIcon}
-                  alt={`${profile.tier} badge`}
-                  className="h-20 w-20 opacity-90 drop-shadow-[0_0_12px_rgba(0,0,0,0.8)]"
-                />
-              </div>
-            )} */}
-            {/* Avatar avec bordure colorée selon le rank */}
-            <div className="relative">
-              <div
-                className="absolute inset-0 rounded-full opacity-60 blur-md"
-                style={{ backgroundColor: rankStyle.glowColor }}
-              />
-              <div
-                className="relative flex h-[90px] w-[90px] items-center justify-center overflow-hidden rounded-full border-[3px] bg-slate-900/95 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.9)]"
-                style={{ borderColor: rankStyle.borderColor }}
-              >
-                {avatarUrl ? (
+          {backgroundImageUrl ? (
+            <img
+              ref={imageRef}
+              src={backgroundImageUrl}
+              alt=""
+              className="absolute w-full object-cover"
+              style={
+                canAdjustBackground
+                  ? {
+                      height: "auto",
+                      minHeight: "100%",
+                      top: "50%",
+                      transform: `translateY(calc(-50% + ${backgroundOffset}px))`,
+                    }
+                  : { height: "100%", objectFit: "cover" }
+              }
+              draggable={false}
+            />
+          ) : (
+            <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-banner-placeholder">
+              <span>Previsualisation de la banniere</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-950/85" />
+          <div className="relative flex h-full w-full items-center justify-between gap-4 px-6 py-5 sm:px-8 sm:py-6">
+            {/* Section gauche : Avatar + Wings + Info */}
+            <div className="flex items-center gap-14 pl-10">
+              {/* Wings emblem en arrière-plan  */}
+              <div>
+                {rankStyle.wingsIcon && (
                   <img
-                    src={avatarUrl}
+                    src={rankStyle.wingsIcon}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="absolute z-30 inset-0 h-[330px] -translate-x-[10px] -translate-y-[48px] object-contain drop-shadow-[0_0_12px_rgba(0,0,0,0.8)]"
                   />
-                ) : (
-                  <span className="text-3xl font-bold text-slate-200">
-                    {avatarFallback}
-                  </span>
                 )}
-              </div>
-            </div>
-
-            {/* Info joueur */}
-            <div className="flex flex-col gap-1">
-              <h3 className="text-xl font-bold text-white sm:text-2xl">
-                {displayName}
-              </h3>
-              <div className="flex items-center gap-2">
-                <span
-                  className="text-sm font-semibold uppercase tracking-wide sm:text-base"
-                  style={{ color: rankStyle.borderColor }}
-                >
-                  {profile.tier} {profile.rank}
-                </span>
-                <span className="text-sm text-slate-300/70">•</span>
-                <span className="text-sm font-medium text-slate-300/90">
-                  {profile.leaguePoints} LP
-                </span>
-              </div>
-              <div className="text-xs text-slate-400/80">
-                {totalGames} parties jouées
-              </div>
-            </div>
-          </div>
-
-          {/* Section droite : Stats */}
-          <div className="flex flex-col gap-3">
-            {/* Winrate avec barre de progression */}
-            <div className="flex flex-col gap-1.5 rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 backdrop-blur-sm min-w-[140px]">
-              <div className="flex flex-col items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-300/70">
-                  Winrate
-                </span>
-                <span className="text-lg font-bold text-white">{winRate}%</span>
-              </div>
-              {/* Barre de progression */}
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-700/50">
                 <div
-                  className="h-full rounded-full transition-all duration-300"
-                  style={{
-                    width: `${winRate}%`,
-                    backgroundColor: rankStyle.borderColor,
-                  }}
-                />
+                  className="relative flex h-[90px] w-[90px] items-center justify-center overflow-hidden rounded-full border-[3px] bg-slate-900/95 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.9)]"
+                  style={{ borderColor: rankStyle.borderColor }}
+                >
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-3xl font-bold text-slate-200">
+                      {avatarFallback}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Info joueur */}
+              <div className="flex flex-col gap-1">
+                <h3 className="text-xl font-bold text-white sm:text-2xl">
+                  {displayName}
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-sm font-semibold uppercase tracking-wide sm:text-base"
+                    style={{ color: rankStyle.borderColor }}
+                  >
+                    {profile.tier} {profile.rank}
+                  </span>
+                  <span className="text-sm text-slate-300/70">•</span>
+                  <span className="text-sm font-medium text-slate-300/90">
+                    {profile.leaguePoints} LP
+                  </span>
+                </div>
+                <div className="text-xs text-slate-400/80">
+                  {totalGames} parties jouées
+                </div>
               </div>
             </div>
 
-            {/* Victoires / Défaites */}
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex flex-col items-center rounded-lg border border-emerald-500/20 bg-emerald-950/30 px-3 py-2 backdrop-blur-sm">
-                <span className="text-xs font-medium uppercase tracking-wider text-emerald-300/70">
-                  V
-                </span>
-                <span className="text-xl font-bold text-emerald-400">
-                  {profile.wins}
-                </span>
+            {/* Section droite : Stats */}
+            <div className="flex flex-col gap-3">
+              {/* Winrate avec barre de progression */}
+              <div className="flex flex-col gap-1.5 rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 backdrop-blur-sm min-w-[140px]">
+                <div className="flex flex-col items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-300/70">
+                    Winrate
+                  </span>
+                  <span className="text-lg font-bold text-white">
+                    {winRate}%
+                  </span>
+                </div>
+                {/* Barre de progression */}
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-700/50">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: `${winRate}%`,
+                      backgroundColor: rankStyle.borderColor,
+                    }}
+                  />
+                </div>
               </div>
-              <div className="flex flex-col items-center rounded-lg border border-rose-500/20 bg-rose-950/30 px-3 py-2 backdrop-blur-sm">
-                <span className="text-xs font-medium uppercase tracking-wider text-rose-300/70">
-                  D
-                </span>
-                <span className="text-xl font-bold text-rose-400">
-                  {profile.losses}
-                </span>
+
+              {/* Victoires / Défaites */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col items-center rounded-lg border border-emerald-500/20 bg-emerald-950/30 px-3 py-2 backdrop-blur-sm">
+                  <span className="text-xs font-medium uppercase tracking-wider text-emerald-300/70">
+                    V
+                  </span>
+                  <span className="text-xl font-bold text-emerald-400">
+                    {profile.wins}
+                  </span>
+                </div>
+                <div className="flex flex-col items-center rounded-lg border border-rose-500/20 bg-rose-950/30 px-3 py-2 backdrop-blur-sm">
+                  <span className="text-xs font-medium uppercase tracking-wider text-rose-300/70">
+                    D
+                  </span>
+                  <span className="text-xl font-bold text-rose-400">
+                    {profile.losses}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
       {/* Bouton de téléchargement */}
@@ -441,7 +436,9 @@ export function SummonerResultCard({
             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
           />
         </svg>
-        <span>{isDownloading ? "Téléchargement..." : "Télécharger la bannière"}</span>
+        <span>
+          {isDownloading ? "Téléchargement..." : "Télécharger la bannière"}
+        </span>
       </button>
     </section>
   );
