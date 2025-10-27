@@ -133,7 +133,7 @@ export function SummonerSearchForm({
 
   return (
     <form className="flex flex-col gap-4" onSubmit={onSubmit}>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-3">
+      <div className="flex gap-4 flex-row items-end sm:gap-3">
         <NameInput
           name="summonerName"
           label="Pseudo"

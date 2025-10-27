@@ -224,7 +224,7 @@ export function SummonerResultCard({
   if (!hasSubmitted) {
     return (
       <section
-        className="flex min-h-[360px] flex-col justify-center gap-6 rounded-3xl border border-app-border bg-app-card p-8 text-center text-slate-200/70"
+        className="flex flex-col justify-center gap-6 rounded-3xl border border-app-border bg-app-card p-8 text-center text-slate-200/70"
         aria-live="polite"
       >
         <div className="flex flex-col items-center gap-3">
@@ -269,12 +269,12 @@ export function SummonerResultCard({
 
   return (
     <section
-      className="flex min-h-[360px] flex-col gap-4 rounded-3xl border border-app-border bg-app-card p-6 sm:p-8"
+      className="flex flex-col gap-4 rounded-3xl border border-app-border bg-app-card p-6 sm:p-8"
       aria-live="polite"
     >
       <div
         ref={bannerRef}
-        className="relative aspect-[3/1] w-full overflow-hidden rounded-2xl bg-banner-fallback text-xs font-semibold uppercase tracking-wideish text-slate-100/80"
+        className="relative aspect-[3/1] w-full overflow-hidden bg-banner-fallback text-xs font-semibold uppercase tracking-wideish text-slate-100/80"
         role="img"
         aria-label={`Banniere de ${displayName}`}
       >

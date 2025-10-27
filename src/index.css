@@ -26,6 +26,7 @@
       linear-gradient(#040611, #040611);
     background-repeat: no-repeat;
     background-size: cover, cover, auto;
+    touch-action: none;
   }
 
   #root {
@@ -45,9 +46,11 @@
   .shadow-hero {
     box-shadow: theme('boxShadow.hero');
   }
+
   .shadow-button-primary {
     box-shadow: theme('boxShadow.button');
   }
+
   .shadow-button-primary-hover {
     box-shadow: theme('boxShadow.buttonHover');
   }

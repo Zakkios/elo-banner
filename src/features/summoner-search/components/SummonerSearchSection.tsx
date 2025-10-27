@@ -208,16 +208,6 @@ export function SummonerSearchSection() {
 
   return (
     <section className="gap-8 flex w-full flex-col">
-      <SummonerResultCard
-        profile={state.profile}
-        lastQueriedName={state.lastQueriedName}
-        lastQueriedTagline={state.lastQueriedTagline}
-        isLoading={isLoading}
-        previewBackgroundUrl={previewImageUrl}
-        hasSubmitted={hasSubmitted}
-        backgroundOffset={backgroundOffset}
-        onBackgroundOffsetChange={handleBackgroundOffsetChange}
-      />
       <div className="flex flex-col gap-5 rounded-3xl border border-app-border bg-app-panel p-8">
         <h2 className="text-2xl font-semibold text-white">
           Recherche de joueur
@@ -257,6 +247,16 @@ export function SummonerSearchSection() {
           <p className="text-sm text-rose-300">{errorMessage}</p>
         ) : null}
       </div>
+      <SummonerResultCard
+        profile={state.profile}
+        lastQueriedName={state.lastQueriedName}
+        lastQueriedTagline={state.lastQueriedTagline}
+        isLoading={isLoading}
+        previewBackgroundUrl={previewImageUrl}
+        hasSubmitted={hasSubmitted}
+        backgroundOffset={backgroundOffset}
+        onBackgroundOffsetChange={handleBackgroundOffsetChange}
+      />
     </section>
   );
 }
