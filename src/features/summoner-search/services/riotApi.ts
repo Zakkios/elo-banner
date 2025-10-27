@@ -28,9 +28,24 @@ const REGIONAL_ROUTING_MAP: Record<
 };
 
 const RIOT_PLATFORM_REGION = "euw1";
-const RIOT_API_BASE_URL = `https://${RIOT_PLATFORM_REGION}.api.riotgames.com`;
 const RIOT_REGIONAL_ROUTING = resolveRegionalRouting(RIOT_PLATFORM_REGION);
-const RIOT_REGIONAL_API_BASE_URL = `https://${RIOT_REGIONAL_ROUTING}.api.riotgames.com`;
+
+// En développement, utiliser le proxy Vite pour éviter les problèmes CORS
+// En production, utiliser directement les URLs de l'API Riot
+// Utiliser window.location.origin pour s'assurer que les requêtes passent par le serveur Vite
+const getProxyBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location) {
+    return window.location.origin;
+  }
+  return '';
+};
+
+const RIOT_API_BASE_URL = import.meta.env.DEV
+  ? `${getProxyBaseUrl()}/api/riot/platform`
+  : `https://${RIOT_PLATFORM_REGION}.api.riotgames.com`;
+const RIOT_REGIONAL_API_BASE_URL = import.meta.env.DEV
+  ? `${getProxyBaseUrl()}/api/riot/regional`
+  : `https://${RIOT_REGIONAL_ROUTING}.api.riotgames.com`;
 const QUEUE_PRIORITY: ReadonlyArray<string> = [
   "RANKED_SOLO_5x5",
   "RANKED_FLEX_SR",
