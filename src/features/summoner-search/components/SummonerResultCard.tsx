@@ -416,30 +416,36 @@ export function SummonerResultCard({
         </div>
       </div>
       {/* Bouton de téléchargement */}
-      <button
-        onClick={handleDownload}
-        disabled={isDownloading}
-        className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-gradient-to-br from-slate-800/80 to-slate-900/80 px-4 py-3 font-semibold text-white transition-all hover:from-slate-700/80 hover:to-slate-800/80 hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-label="Télécharger la bannière"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={2}
-          stroke="currentColor"
-          className="h-5 w-5"
+      <p className="text-sm text-slate-200/70 text-center">
+        Cliquez et faites glisser le splash art pour ajuster sa position.
+      </p>
+      <div className="flex justify-center">
+        <button
+          onClick={handleDownload}
+          disabled={isDownloading}
+          // className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-gradient-to-br from-slate-800/80 to-slate-900/80 px-4 py-3 font-semibold text-white transition-all hover:from-slate-700/80 hover:to-slate-800/80 hover:border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center justify-center gap-2 border border-white/10 bg-[#C8AA6E] hover:bg-[#c9b388] px-4 py-3 font-semibold text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Télécharger la bannière"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
-          />
-        </svg>
-        <span>
-          {isDownloading ? "Téléchargement..." : "Télécharger la bannière"}
-        </span>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={2}
+            stroke="currentColor"
+            className="h-5 w-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+            />
+          </svg>
+          <span>
+            {isDownloading ? "Téléchargement..." : "Télécharger la bannière"}
+          </span>
+        </button>
+      </div>
     </section>
   );
 }

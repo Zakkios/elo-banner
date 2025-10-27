@@ -6,6 +6,7 @@ import {
 } from "../../../components/ui/TextField";
 import type { ChampionBackgroundOption } from "../services/championBackgrounds";
 import type { ChampionSkinOption } from "../services/championSkins";
+import { FaSearch } from "react-icons/fa";
 
 interface BackgroundSelectProps {
   label: string;
@@ -159,6 +160,9 @@ export function SummonerSearchForm({
           required
           className="sm:flex-[0.32]"
         />
+        <Button type="submit" disabled={isSubmitDisabled}>
+          <FaSearch className="h-5 w-5" color="white" />
+        </Button>
       </div>
       <div className="flex gap-3">
         <div className="w-full">
@@ -185,9 +189,6 @@ export function SummonerSearchForm({
           </div>
         )}
       </div>
-      <Button type="submit" disabled={isSubmitDisabled}>
-        {isLoading ? "Recherche..." : "Generer"}
-      </Button>
     </form>
   );
 }

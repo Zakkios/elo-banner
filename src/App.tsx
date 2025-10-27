@@ -1,10 +1,13 @@
 // import { PageHero } from './components/layout/PageHero'
 import { PageLayout } from './components/layout/PageLayout'
+import { NonDesktopOverlay } from './components/layout/NonDesktopOverlay'
 import { SummonerSearchSection } from './features/summoner-search'
 
 function App() {
   return (
-    <PageLayout
+    <>
+      <NonDesktopOverlay />
+      <PageLayout
       header={null
         // <PageHero
         //   title="Elo Banner"
@@ -17,9 +20,10 @@ function App() {
         // />
       }
       footer={<p className="text-sm text-slate-200/70">Concu pour la communaute League of Legends.</p>}
-    >
-      <SummonerSearchSection />
-    </PageLayout>
+      >
+        <SummonerSearchSection />
+      </PageLayout>
+    </>
   )
 }
 
